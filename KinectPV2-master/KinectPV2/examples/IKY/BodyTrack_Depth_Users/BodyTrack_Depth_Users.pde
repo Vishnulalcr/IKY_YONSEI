@@ -88,11 +88,17 @@ void draw() {
       //draw different color for each hand state
       drawHandState(joints[KinectPV2.JointType_HandRight]);
       drawHandState(joints[KinectPV2.JointType_HandLeft]);
-      if(startFlag == 0){
-        if(joints[KinectPV2.JointType_HandLeft].getState() == KinectPV2.HandState_Open){
+      if(startFlag == 0 || startFlag == 2){
+        if(joints[KinectPV2.JointType_HandRight].getState() == KinectPV2.HandState_Open){
          startFlag++; 
          //println(startFlag);
         }
+      }
+      else if(startFlag == 1 || startFlag == 3){
+       if(joints[KinectPV2.JointType_HandRight].getState() == KinectPV2.HandState_Closed){
+         startFlag++; 
+         //println(startFlag);
+        } 
       }
       //println(joints[7].getX() - joints[11].getX());
       
@@ -101,6 +107,10 @@ void draw() {
   println(startFlag);
   fill(0);
   textSize(16);
+  if(startFlag == 4){
+    textSize(160);
+    text("Start!!!!!",50,130); 
+  }
   text(kinect.getNumOfUsers(), 50, 50);
   text(bodyTrackList.size(), 50, 70);
 }
