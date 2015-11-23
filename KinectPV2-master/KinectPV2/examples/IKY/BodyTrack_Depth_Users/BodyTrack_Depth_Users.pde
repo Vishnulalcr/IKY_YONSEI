@@ -88,9 +88,11 @@ void draw() {
       //draw different color for each hand state
       drawHandState(joints[KinectPV2.JointType_HandRight]);
       drawHandState(joints[KinectPV2.JointType_HandLeft]);
-      if(joints[KinectPV2.JointType_HandLeft].getState() == KinectPV2.HandState_Open){
-       //startFlag++; 
-       //println(startFlag);
+      if(startFlag == 0){
+        if(joints[KinectPV2.JointType_HandLeft].getState() == KinectPV2.HandState_Open){
+         startFlag++; 
+         //println(startFlag);
+        }
       }
       //println(joints[7].getX() - joints[11].getX());
       
