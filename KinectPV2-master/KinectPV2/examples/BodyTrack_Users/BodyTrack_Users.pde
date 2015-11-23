@@ -38,10 +38,14 @@ void draw() {
   //iterate through all the users
   for (int i = 0; i < bodyTrackList.size(); i++) {
     PImage bodyTrackImg = (PImage)bodyTrackList.get(i);
-    if (i <= 2)
-      image(bodyTrackImg, 320 + 240*i, 0, 320, 240);
-    else
-      image(bodyTrackImg, 320 + 240*(i - 3), 424, 320, 240 );
+    PImage firstUserImg = (PImage)bodyTrackList.get(0);
+    image(firstUserImg, 320 + 240, 0, 320, 240);
+    if (i <= 2){
+      //image(bodyTrackImg, 320 + 240*i, 0, 320, 240);
+    }
+    else{
+      //image(bodyTrackImg, 320 + 240*(i - 3), 424, 320, 240 );
+    }
   }
 
   fill(0);
