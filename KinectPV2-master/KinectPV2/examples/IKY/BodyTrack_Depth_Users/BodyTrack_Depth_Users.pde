@@ -20,6 +20,8 @@ KinectPV2 kinect;
 
 boolean foundUsers = false;
 int startFlag=0;
+float ratioX, ratioY;
+PImage img;
 
 void setup() {
   size(1920, 1080, P3D);
@@ -28,17 +30,21 @@ void setup() {
   
   kinect.enableSkeletonColorMap(true);
   kinect.enableBodyTrackImg(true);
-  kinect.enableDepthMaskImg(true);
+  //kinect.enableDepthMaskImg(true);
   kinect.enableColorImg(true);
+  kinect.enableHDFaceDetection(true);
   
   kinect.init();
+  
+  img = loadImage("lion.png");
 }
 
 void draw() {
+  imageMode(CENTER);
   background(0);
 
   //image(kinect.getBodyTrackImage(), 0, 0, 320, 240);
-  image(kinect.getColorImage(), 0, 0, width, height);
+  image(kinect.getColorImage(), width/2, height/2);
 
   //get the body track combined with the depth information
   //image(kinect.getDepthMaskImage(), 0, 240, 320, 240);
@@ -57,6 +63,7 @@ void draw() {
     //PImage seconUserImg;
     if(i==0){
       firstUserImg = (PImage)bodyTrackList.get(i);
+
       //image(firstUserImg, 320, 0, 320, 240);
       //image(colorImg, 320+320, 0, 320, 240);
     }
@@ -74,9 +81,15 @@ void draw() {
     }  
   }
   
+  PImage firstUserSkeleton; 
   //individual JOINTS
   for (int i = 0; i < skeletonArray.size(); i++) {
     KSkeleton skeleton = (KSkeleton) skeletonArray.get(i);
+    KSkeleton firstSkeleton = (KSkeleton) skeletonArray.get(0);
+    //firstUserSkeleton = (PImage)skeletonArray.get(0);
+    
+    
+    /*
     if (skeleton.isTracked()) {
       KJoint[] joints = skeleton.getJoints();
 
@@ -103,7 +116,62 @@ void draw() {
       //println(joints[7].getX() - joints[11].getX());
       
     }
+    */
+    if (firstSkeleton.isTracked()) {
+      KJoint[] joints = firstSkeleton.getJoints();
+
+      color col  = firstSkeleton.getIndexColor();
+      fill(col);
+      stroke(col);
+      //drawBody(joints);
+
+      //draw different color for each hand state
+      drawHandState(joints[KinectPV2.JointType_HandRight]);
+      drawHandState(joints[KinectPV2.JointType_HandLeft]);
+      if(startFlag == 0 || startFlag == 2){
+        if(joints[KinectPV2.JointType_HandRight].getState() == KinectPV2.HandState_Open){
+         startFlag++; 
+         //println(startFlag);
+        }
+      }
+      else if(startFlag == 1 || startFlag == 3){
+       if(joints[KinectPV2.JointType_HandRight].getState() == KinectPV2.HandState_Closed){
+         startFlag++; 
+         //println(startFlag);
+        } 
+      }
+      //println(joints[7].getX() - joints[11].getX());
+      
+    }
   }
+  
+  //Obtain the Vertex Face Points
+  // 1347 Vertex Points for each user.
+  ArrayList<HDFaceData> hdFaceData = kinect.getHDFaceVertex();
+
+  for (int j = 0; j < hdFaceData.size(); j++) {
+    //obtain a the HDFace object with all the vertex data
+    HDFaceData HDfaceData = (HDFaceData)hdFaceData.get(j);
+
+    if (HDfaceData.isTracked()) {
+
+      //draw the vertex points
+      stroke(0, 255, 0);
+      beginShape(POINTS);
+      for (int i = 0; i < KinectPV2.HDFaceVertexCount; i++) {
+        float x = HDfaceData.getX(i);
+        float y = HDfaceData.getY(i);
+        vertex(x, y);
+      }
+      endShape();
+      
+      ratioX = HDfaceData.getX(HDFaceData.Face_Nose);
+      ratioY = HDfaceData.getY(HDFaceData.Face_Nose);
+      image(img, ratioX, ratioY - 70);
+      println(ratioX, ratioY);
+    }
+  }
+  
   println(startFlag);
   fill(0);
   textSize(16);
@@ -212,27 +280,6 @@ void handState(int handState) {
   }
 }
 
-//start Q&A using handstate
-int handStart(int result, int handState){
-  
-  switch(handState) {
-  case KinectPV2.HandState_Open:
-    //fill(0, 255, 0);
-    result++;
-    break;
-  case KinectPV2.HandState_Closed:
-    fill(255, 0, 0);
-    result++;
-    break;
-  case KinectPV2.HandState_Lasso:
-    fill(0, 0, 255);
-    break;
-  case KinectPV2.HandState_NotTracked:
-    fill(255, 255, 255);
-    break;
-  }
-  return result;
-}
 void mousePressed() {
   println(frameRate);
 }
